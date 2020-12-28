@@ -23,7 +23,7 @@ class Checkpoint(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
 
         self.rect.x = x
-        self.rect.y = SCREEN['SIZE'][1] - y #This used bottom right as 0,0 insted of top left 
+        self.rect.y = y 
 
 
     def update(self):

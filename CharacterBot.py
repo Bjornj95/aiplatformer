@@ -17,6 +17,7 @@ class CharacterBot(Character):
     state_img = 0
     direction = 'RIGHT' #['LEFT', 'RIGHT']
     double_jump = True
+    
 
     def __init__(self, name='Bot1', character='Ninja frog'):
         super(CharacterBot, self).__init__(name, character)
@@ -37,5 +38,7 @@ class CharacterBot(Character):
             [0.03, 0.06, 0.01, 0.70, 0.20]
             )
         for action in actions[0]:
+            self.actions_made.append(action.__name__)
             action()
+
 

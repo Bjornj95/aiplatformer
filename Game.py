@@ -10,7 +10,7 @@ import pygame as pg
 import random
 from Character import Character
 from CharacterBot import CharacterBot
-from Level import Level
+from LevelLoader import Level
 from Config import SCREEN, MAIN_CHARACTER, TERRAIN, BACKGROUND, NUMBER_OF_BOTS, FPS
 from itertools import chain
 
@@ -59,16 +59,23 @@ def game_loop():
     while not done:
         for event in pg.event.get():
             if event.type == pg.QUIT:
+                for bot in chain(bots,[player]):
+                    bot.quitSave()
                 done = True
 
         keys = pg.key.get_pressed()
         if keys:
             if keys[pg.K_LEFT] or keys[pg.K_a]:
                 player.left()
+                player.actions_made.append("left")
             if keys[pg.K_RIGHT] or keys[pg.K_d]:
                 player.right()
+                player.actions_made.append("right")
             if keys[pg.K_SPACE]:
                 player.jump()
+                player.actions_made.append("jump")
+            else: 
+                player.actions_made.append("none")
 
         for bot in bots:
             bot.random_action()

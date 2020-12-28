@@ -1,5 +1,5 @@
 import pygame as pg
-from Config import SCREEN, MAIN_CHARACTER
+from Config import SCREEN, MAIN_CHARACTER, FPS
 from AssetLoader import ANIMATIONS_CHAR
 
 
@@ -19,8 +19,6 @@ class Character(pg.sprite.Sprite):
     level = None
     level_no = 0
 
-    points = 0 
-
     def __init__(self, name='Player 1', character='Ninja frog'):
         super(Character, self).__init__()
 
@@ -28,6 +26,10 @@ class Character(pg.sprite.Sprite):
         self.character = character
         self.image = ANIMATIONS_CHAR[character][self.state][self.state_img]
         self.rect = self.image.get_rect()
+        self.actions_made = []
+        self.states = []
+        self.points = 0 
+        self.time_on_level = 0
 
     def update(self):
         ''' Update position, movementspeed and animation, called once every fps'''
@@ -36,6 +38,7 @@ class Character(pg.sprite.Sprite):
         self._friction()
         self._move()
         self._collect()
+        self._saveAction()
 
         # Update every 3
         if self.tick == 3:
@@ -44,6 +47,8 @@ class Character(pg.sprite.Sprite):
             self._tint_image()
         else:
             self.tick += 1
+
+        self.time_on_level += 1/FPS #Used to give point depending on how fast level is completed 
 
     def _gravity(self):
         ''' NOT DONE TODO '''
@@ -182,9 +187,42 @@ class Character(pg.sprite.Sprite):
     def is_finished(self):
         for flag in pg.sprite.spritecollide(self, self.level.checkpoints, False):
             self.points += 50
+            if 15 - self.time_on_level > 0:
+                self.points += int(30 - self.time_on_level)
+            self.time_on_level = 0
             print(self.name, " has ",self.points," points.","(",self.level_no,")")
 
             return True 
+
+    def _saveAction(self): 
+        for platform in self.level.platforms: 
+            if type(self) == Character: 
+                if(abs(platform.rect.right - self.rect.left) < 100 and abs(platform.rect.bottom - self.rect.bottom) < 50):
+                    #print("Platform to your left")
+                    self.states.append("PL")
+                if(abs(platform.rect.left - self.rect.right) < 100 and abs(platform.rect.bottom - self.rect.bottom) < 50):
+                    #print("Platform to your right")
+                    self.states.append("PR")
+                else: 
+                    #print("No platform nearby")
+                    self.states.append('None')
+
+    def quitSave(self): 
+        if self.points > 0:
+            f_actions = open("Models/score"+str(self.points)+"_actions.txt",'w')
+            f_states = open("Models/score"+str(self.points)+"_states.txt",'w')
+
+            for action in self.actions_made: 
+                f_actions.writelines(str(action))
+                f_actions.writelines('\n')
+            for state in self.states: 
+                f_states.writelines(state)
+                f_states.writelines('\n')
+
+            f_actions.close()
+            f_states.close() 
+
+            print("Save made")
         
         
 if __name__ == '__main__':
