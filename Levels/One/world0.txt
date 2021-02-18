@@ -1,0 +1,32 @@
+32 
+30 
+30 
+38 128 96 64 <class '__main__.Platform'>
+998 448 64 128 <class '__main__.Platform'>
+390 480 96 96 <class '__main__.Platform'>
+-1090 536 4992 96 <class '__main__.Platform'>
+-1090 0 64 512 <class '__main__.Platform'>
+1510 100 64 96 <class '__main__.Platform'>
+-1090 -64 4992 64 <class '__main__.Platform'>
+910 50 96 192 <class '__main__.Platform'>
+1110 100 320 160 <class '__main__.Platform'>
+510 400 192 64 <class '__main__.Platform'>
+510 0 192 64 <class '__main__.Platform'>
+78 384 32 32 <class 'Collectibles.Collectible'>
+206 384 32 32 <class 'Collectibles.Collectible'>
+298 256 32 32 <class 'Collectibles.Collectible'>
+530 192 32 32 <class 'Collectibles.Collectible'>
+626 320 32 32 <class 'Collectibles.Collectible'>
+740 224 32 32 <class 'Collectibles.Collectible'>
+830 448 32 32 <class 'Collectibles.Collectible'>
+1012 416 32 32 <class 'Collectibles.Collectible'>
+1276 416 32 32 <class 'Collectibles.Collectible'>
+1604 416 32 32 <class 'Collectibles.Collectible'>
+1888 352 32 32 <class 'Collectibles.Collectible'>
+2172 480 32 32 <class 'Collectibles.Collectible'>
+192 128 32 32 <class 'Collectibles.Collectible'>
+288 96 32 32 <class 'Collectibles.Collectible'>
+320 128 32 32 <class 'Collectibles.Collectible'>
+288 192 32 32 <class 'Collectibles.Collectible'>
+224 224 32 32 <class 'Collectibles.Collectible'>
+2258 416 128 128 <class 'Checkpoints.Checkpoint'>

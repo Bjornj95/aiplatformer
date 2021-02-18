@@ -8,13 +8,15 @@ http://programarcadegames.com/python_examples/show_file.php?file=platform_scroll
 
 import pygame as pg
 import random
+import os
 from Character import Character
 from CharacterBot import CharacterBot
+from CharacterMachine import CharacterMachine
 from LevelLoader import Level
-from Config import SCREEN, MAIN_CHARACTER, TERRAIN, BACKGROUND, NUMBER_OF_BOTS, FPS
+from Config import SCREEN, MAIN_CHARACTER, TERRAIN, BACKGROUND, NUMBER_OF_BOTS, FPS, NUMBER_OF_AI
 from itertools import chain
 
-SCREEN_HEIGHT, SCREEN_WIDTH = SCREEN['SIZE']
+SCREEN_WIDTH, SCREEN_HEIGHT  = SCREEN['SIZE'] #Detta är inte samma som i LevelLoader?!
 global level_list 
 
 def game_loop():
@@ -24,17 +26,16 @@ def game_loop():
     pg.display.set_caption("Ai-game")
  
     player = Character(character='Ninja_Frog')
-    bots = [CharacterBot(name=f'Bot{i}', character=random.choice(MAIN_CHARACTER['NAME'])) for i in range(NUMBER_OF_BOTS)]
-    machines = [] #[CharacterAI(name=f'AI{i}', character=random.choice(MAIN_CHARACTER['NAME'])) for i in range(NUMBER_OF_AI)]
+    bots = [] #[CharacterBot(name=f'Bot{i}', character=random.choice(MAIN_CHARACTER['NAME'])) for i in range(NUMBER_OF_BOTS)]
+    machines = [CharacterMachine(name=f'AI{i}', character=random.choice(MAIN_CHARACTER['NAME'])) for i in range(NUMBER_OF_AI)]
+    finishedBots = 0 
 
-    # Create all the levels
+    # Loads all the levels
 
-    level_list = [
-        Level(player,lvl_type=random.choice(BACKGROUND['NAME']),ter_type=random.choice(TERRAIN['NAME'])),
-        Level(player,lvl_type=random.choice(BACKGROUND['NAME']),ter_type=random.choice(TERRAIN['NAME'])),
-        Level(player,lvl_type=random.choice(BACKGROUND['NAME']),ter_type=random.choice(TERRAIN['NAME'])),
-        Level(player,lvl_type=random.choice(BACKGROUND['NAME']),ter_type=random.choice(TERRAIN['NAME']))
-        ]
+    level_list = []
+    for i in range(len(os.listdir("Levels/One"))):
+        level_list.append(Level(player,lvl_type=random.choice(BACKGROUND['NAME']),ter_type=random.choice(TERRAIN['NAME']),worldNbr=i))
+
     current_level_no = 0
     current_level = level_list[current_level_no]
 
@@ -48,7 +49,7 @@ def game_loop():
         char.rect.y = SCREEN_HEIGHT / 4
         active_sprite_list.add(char)
 
-    current_level.bots = bots
+    current_level.bots = bots + machines
 
  
     # Used to manage how fast the screen updates
@@ -59,33 +60,46 @@ def game_loop():
     while not done:
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                for bot in chain(bots,[player]):
+                for bot in chain(bots,[player],machines):
                     bot.quitSave()
                 done = True
 
+        if finishedBots > 2: 
+            print("Exited because winners were found")
+            for bot in chain(bots,[player],machines):
+                bot.quitSave()
+                
+            done = True
+
         keys = pg.key.get_pressed()
         if keys:
+            allActions = ''
+            somethingDone = False 
             if keys[pg.K_LEFT] or keys[pg.K_a]:
                 player.left()
-                player.actions_made.append("left")
+                allActions+="left"
+                somethingDone = True 
             if keys[pg.K_RIGHT] or keys[pg.K_d]:
                 player.right()
-                player.actions_made.append("right")
+                allActions+="right"
+                somethingDone = True 
             if keys[pg.K_SPACE]:
                 player.jump()
-                player.actions_made.append("jump")
-            else: 
-                player.actions_made.append("none")
+                allActions+="jump"
+                somethingDone = True 
+            if not somethingDone: 
+                allActions+="none"
+            player.actions_made.append(allActions)    
 
         for bot in bots:
             bot.random_action()
 
-        for machine in machines:
-            machine.action()
-
         # Update the player and level.
         active_sprite_list.update()
         current_level.update()
+
+        for machine in machines:
+            machine.predictAction()
 
         # If the player gets near the right side, shift the world left (-x)
         if player.rect.right >= 500:
@@ -106,6 +120,8 @@ def game_loop():
             # If any player gets to the end of the level, go to the next level
             current_position = char.rect.x + current_level.world_shift
             if char.is_finished(): #"current_position < current_level.level_limit or" 
+                finishedBots += 1
+                print("Finished bots: ",finishedBots)
                 char.rect.x = 340
                 char.rect.y = SCREEN_HEIGHT / 4
                 if char.level_no < len(level_list)-1:

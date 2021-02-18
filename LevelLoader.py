@@ -19,27 +19,33 @@ class Level():
     world_shift = 0
     tick = 0
 
-    def __init__(self, player, lvl_type='Blue',  ter_type='Wood'):
+    def __init__(self, player, lvl_type='Blue',  ter_type='Wood',fromFile = True, worldNbr = 0):
 
-        self.platforms = pg.sprite.Group()
-        self.enemies = pg.sprite.Group()
-        self.bots = pg.sprite.Group()
-        self.player = player
-        self.collectibles = pg.sprite.Group() 
-        self.checkpoints = pg.sprite.Group()
-        self.level_type = lvl_type
-        self.terrain_type = ter_type
+        if fromFile:
+            self.platforms = pg.sprite.Group()
+            self.enemies = pg.sprite.Group()
+            self.bots = pg.sprite.Group()
+            self.player = player
+            self.collectibles = pg.sprite.Group() 
+            self.checkpoints = pg.sprite.Group()
+            self.level_type = lvl_type
+            self.terrain_type = ter_type
 
-        self.boxSize = None 
-        self.gridSize = None 
-        self.board = []
+            self.boxSize = None 
+            self.gridSize = None 
+            self.worldNbr = worldNbr
 
-        #Load file into matrix 
-        self.board = self.loadFromFile()
-        self.generateSprites()
-            
-        for width, height, x, y in self._platforms():
-            self.platforms.add(Platform(width, height, x, y, ter_type))
+            self.generateSpritesFromFile()
+
+        else:    
+            self.board = []
+
+            #Load file into matrix 
+            self.board = self.loadFromFile()
+            self.generateSprites()
+                
+            for width, height, x, y in self._platforms():
+                self.platforms.add(Platform(width, height, x, y, ter_type))
 
     def _platforms(self):
         ''' Platform(width, height, x, y) '''
@@ -99,12 +105,11 @@ class Level():
         return ret 
 
     def generateSprites(self):
-        widthP = 0 
-        heightP = 0
-        firstP = True 
         for row in range(len(self.board)):
             for column in range(len(self.board[row])):
-                if self.board[row][column] == 'P' and firstP == True and self.board[row-1][column] != 'P': #Platform 
+                widthP = 0 
+                heightP = 0
+                if self.board[row][column] == 'P' and self.board[row][column-1] != 'P' and self.board[row-1][column] != 'P': #Hittat ett övre vänster hörn 
                     i = column
                     k = row
                     while self.board[row][i] == 'P':
@@ -114,16 +119,25 @@ class Level():
                         heightP += 32
                         k+=1
 
-                    firstP = False 
+                    print(widthP,heightP)
                     self.platforms.add(Platform(widthP, heightP, column*self.boxSize, row*self.boxSize, 'Wood')) 
-
-                elif self.board[row][column] != 'P':
-                    firstP = True    
                            
                 if self.board[row][column] == 'A': #Apple
                     self.collectibles.add(Collectible(column*self.boxSize,row*self.boxSize))
                 if self.board[row][column] == 'F': #Flag
                     self.checkpoints.add(Checkpoint(column*self.boxSize,row*self.boxSize))
+
+    def generateSpritesFromFile(self): 
+        f = open("Levels/One/world"+str(self.worldNbr)+".txt",'r')
+        for entry in f:
+            data = entry.split()
+            if "Platform" in entry: 
+                self.platforms.add(Platform(int(data[2]), int(data[3]), int(data[0]), int(data[1])))
+            if "Collectible" in entry: 
+                self.collectibles.add(Collectible(int(data[0]), int(data[1])))
+            if "Checkpoint" in entry: 
+                self.checkpoints.add(Checkpoint(int(data[0]), int(data[1])))
+
 
 class Platform(pg.sprite.Sprite):
     ''' Platform the player can jump on '''

@@ -37,8 +37,10 @@ class CharacterBot(Character):
             1,
             [0.03, 0.06, 0.01, 0.70, 0.20]
             )
+        allActions = ''
         for action in actions[0]:
-            self.actions_made.append(action.__name__)
+            allActions += action.__name__
             action()
+        self.actions_made.append(allActions)
 
 

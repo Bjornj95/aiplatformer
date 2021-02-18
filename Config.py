@@ -3,12 +3,12 @@ Import configurations from this class
 '''
 
 NUMBER_OF_BOTS = 10
-NUMBER_OF_AI = 1
+NUMBER_OF_AI = 10
 FPS = 60
 
 # Screen dimensions
 SCREEN = {
-    'SIZE': (800, 600) #(800, 600)
+    'SIZE': (1600, 800) #(800, 600)
 }
 
 # 'Mask Dude', 'Ninja frog', 'Pink Man', 'Virtual Guy'

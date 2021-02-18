@@ -1,6 +1,7 @@
 import pygame as pg
 from Config import SCREEN, MAIN_CHARACTER, FPS
 from AssetLoader import ANIMATIONS_CHAR
+import os 
 
 
 SCREEN_HEIGHT, SCREEN_WIDTH = SCREEN['SIZE']
@@ -38,7 +39,7 @@ class Character(pg.sprite.Sprite):
         self._friction()
         self._move()
         self._collect()
-        self._saveAction()
+        self._saveStates()
 
         # Update every 3
         if self.tick == 3:
@@ -172,6 +173,9 @@ class Character(pg.sprite.Sprite):
         if self.state == 'IDLE':
             self._change_state('RUN')
 
+    def none(self): #Dummy function 
+        pass
+
     def _tint_image(self):
         ''' for subclasses to be able to tint '''
         pass
@@ -191,26 +195,27 @@ class Character(pg.sprite.Sprite):
                 self.points += int(30 - self.time_on_level)
             self.time_on_level = 0
             print(self.name, " has ",self.points," points.","(",self.level_no,")")
-
             return True 
 
-    def _saveAction(self): 
+    def _saveStates(self): 
+        platformFound = False 
         for platform in self.level.platforms: 
-            if type(self) == Character: 
-                if(abs(platform.rect.right - self.rect.left) < 100 and abs(platform.rect.bottom - self.rect.bottom) < 50):
-                    #print("Platform to your left")
-                    self.states.append("PL")
-                if(abs(platform.rect.left - self.rect.right) < 100 and abs(platform.rect.bottom - self.rect.bottom) < 50):
-                    #print("Platform to your right")
-                    self.states.append("PR")
-                else: 
-                    #print("No platform nearby")
-                    self.states.append('None')
+            if(abs(platform.rect.right - self.rect.left) < 100 and abs(platform.rect.bottom - self.rect.bottom) < 50):
+                #print("Platform to your left")
+                self.states.append("PL")
+                platformFound = True
+            if(abs(platform.rect.left - self.rect.right) < 100 and abs(platform.rect.bottom - self.rect.bottom) < 50):
+                #print("Platform to your right")
+                self.states.append("PR")
+                platformFound = True
+        if not platformFound:
+            #print("No platform nearby")
+            self.states.append('None')
 
     def quitSave(self): 
-        if self.points > 0:
-            f_actions = open("Models/score"+str(self.points)+"_actions.txt",'w')
-            f_states = open("Models/score"+str(self.points)+"_states.txt",'w')
+        if self.points > 50 and len(self.actions_made) == len(self.states):
+            f_actions = open("Models/try2/score"+str(self.points)+"_actions.txt",'a')
+            f_states = open("Models/try2/score"+str(self.points)+"_states.txt",'a')
 
             for action in self.actions_made: 
                 f_actions.writelines(str(action))
@@ -218,6 +223,52 @@ class Character(pg.sprite.Sprite):
             for state in self.states: 
                 f_states.writelines(state)
                 f_states.writelines('\n')
+
+            f_actions.close()
+            f_states.close() 
+
+            """os.remove("Models/Itterative/actions1.txt")
+            os.remove("Models/Itterative/actions2.txt")
+            os.remove("Models/Itterative/actions3.txt") """
+
+            if os.path.isfile("Models/Itterative/actions1.txt"):
+
+                if os.path.isfile("Models/Itterative/actions2.txt"):
+
+                    if os.path.isfile("Models/Itterative/actions3.txt"):
+                        pass 
+                    else: 
+                        f_actions = open("Models/Itterative/actions3.txt",'w')
+                        f_states = open("Models/Itterative/states3.txt",'w')
+
+                        for action in self.actions_made: 
+                            f_actions.writelines(str(action))
+                            f_actions.writelines('\n')
+                        for state in self.states: 
+                            f_states.writelines(state)
+                            f_states.writelines('\n')
+
+                else: 
+                    f_actions = open("Models/Itterative/actions2.txt",'w')
+                    f_states = open("Models/Itterative/states2.txt",'w')
+
+                    for action in self.actions_made: 
+                        f_actions.writelines(str(action))
+                        f_actions.writelines('\n')
+                    for state in self.states: 
+                        f_states.writelines(state)
+                        f_states.writelines('\n')
+            
+            else: 
+                f_actions = open("Models/Itterative/actions1.txt",'w')
+                f_states = open("Models/Itterative/states1.txt",'w')
+
+                for action in self.actions_made: 
+                    f_actions.writelines(str(action))
+                    f_actions.writelines('\n')
+                for state in self.states: 
+                    f_states.writelines(state)
+                    f_states.writelines('\n')
 
             f_actions.close()
             f_states.close() 
